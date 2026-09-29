@@ -1,0 +1,91 @@
+name: ci
+
+on:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: make install
+
+      - name: Lint
+        run: make lint
+
+      - name: Type check
+        run: make typecheck
+
+      - name: Unit tests
+        run: make test
+
+      - name: Validate knowledge base rules
+        run: make validate-kb
+
+      - name: Discover CloudFormation sample templates
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t yaml_files < <(git ls-files '*.yaml' '*.yml')
+          template_files=()
+
+          for file in "${yaml_files[@]}"; do
+            if grep -Eq '(^AWSTemplateFormatVersion:|^[[:space:]]*Resources:)' "$file"; then
+              template_files+=("$file")
+            fi
+          done
+
+          if [ ${#template_files[@]} -eq 0 ]; then
+            echo "No CloudFormation sample templates found."
+            : > cfn_templates.txt
+            exit 0
+          fi
+
+          printf '%s\n' "${template_files[@]}" > cfn_templates.txt
+          echo "Discovered templates:"
+          cat cfn_templates.txt
+
+      - name: cfn-lint sample templates
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -s cfn_templates.txt ]; then
+            echo "No templates to lint."
+            exit 0
+          fi
+          mapfile -t templates < cfn_templates.txt
+          cfn-lint "${templates[@]}"
+
+      - name: checkov sample templates
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -s cfn_templates.txt ]; then
+            echo "No templates to scan."
+            exit 0
+          fi
+          while IFS= read -r template; do
+            checkov -f "$template" --framework cloudformation --quiet
+          done < cfn_templates.txt
+
+      - name: Upload validation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-validation-artifacts
+          path: |
+            cfn_templates.txt
+            docs/reports/
+            checkpoints/
+          if-no-files-found: ignore

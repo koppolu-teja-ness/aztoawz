@@ -184,6 +184,11 @@ class DeploymentResult(BaseModel):
     stack_name: str | None = None
     stack_id: str | None = None
     outputs: dict[str, str] = Field(default_factory=dict)
+    stack_statuses: dict[str, str] = Field(default_factory=dict)
+    resource_statuses: dict[str, dict[str, str]] = Field(default_factory=dict)
+    rollback_triggered: bool = False
+    rollback_actions: list[str] = Field(default_factory=list)
+    failed_stack: str | None = None
     message: str | None = None
     timestamp: datetime | None = None
 

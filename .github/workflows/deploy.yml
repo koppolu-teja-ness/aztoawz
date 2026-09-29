@@ -1,0 +1,112 @@
+name: deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_environment:
+        description: Target environment name
+        required: true
+        type: choice
+        options:
+          - dev
+          - stage
+          - prod
+      aws_region:
+        description: AWS region for deployment
+        required: true
+        default: us-east-1
+        type: string
+      aws_deploy_role_arn:
+        description: Least-privilege AWS deploy role ARN to assume via OIDC
+        required: true
+        type: string
+      api_base_url:
+        description: Base URL for migration API, for example https://api.example.com
+        required: true
+        type: string
+      migration_id:
+        description: Migration run identifier (for example mig-xxxxxxxxxxxx)
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      API_BASE_URL: ${{ inputs.api_base_url }}
+      MIGRATION_ID: ${{ inputs.migration_id }}
+      TARGET_ENVIRONMENT: ${{ inputs.target_environment }}
+      AWS_REGION: ${{ inputs.aws_region }}
+      MIGRATION_API_KEY: ${{ secrets.MIGRATION_API_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: make install
+
+      - name: Configure AWS credentials with OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ inputs.aws_deploy_role_arn }}
+          role-session-name: gha-aztoawz-deploy
+
+      - name: Verify approval was completed via API
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${MIGRATION_API_KEY:-}" ]; then
+            echo "Required secret MIGRATION_API_KEY is not set."
+            exit 1
+          fi
+
+          curl -fsS \
+            -H "x-api-key: ${MIGRATION_API_KEY}" \
+            "${API_BASE_URL%/}/migrations/${MIGRATION_ID}/status" \
+            -o migration_status.json
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          payload = json.loads(Path("migration_status.json").read_text(encoding="utf-8"))
+          status = payload.get("status")
+          has_approval = payload.get("has_approval_record")
+          plan_hash = payload.get("plan_hash")
+
+          if status != "APPROVED":
+              raise SystemExit(f"Deployment blocked: status must be APPROVED, got {status!r}")
+          if has_approval is not True:
+              raise SystemExit("Deployment blocked: no approval record found")
+          if not isinstance(plan_hash, str) or not plan_hash.strip():
+              raise SystemExit("Deployment blocked: missing plan_hash in migration status")
+
+          print(f"Approval gate verified for plan_hash={plan_hash}")
+          PY
+
+      - name: Run migration graph deployment
+        env:
+          TARGET_ENVIRONMENT: ${{ env.TARGET_ENVIRONMENT }}
+          MIGRATION_ID: ${{ env.MIGRATION_ID }}
+        run: make run-graph
+
+      - name: Upload deployment artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-artifacts-${{ github.run_id }}
+          path: |
+            migration_status.json
+            docs/reports/
+            checkpoints/
+          if-no-files-found: ignore

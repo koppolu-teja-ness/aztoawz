@@ -37,3 +37,8 @@ Thumbs.db
 # Generated artifacts and logs
 .artifacts/
 *.log
+
+# Runtime migration run/checkpoint state (created by API/CLI at runtime)
+.migration_runs/
+.checkpoints/
+.e2e_demo_run/

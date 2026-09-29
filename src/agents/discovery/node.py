@@ -8,6 +8,7 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import shutil
 import subprocess
 from typing import Any, Callable
 
@@ -144,8 +145,18 @@ def _list_live_azure_resources(
 
 
 def _run_az_cli_command(command: list[str]) -> str:
-    completed = subprocess.run(command, check=True, capture_output=True, text=True)
+    resolved = _resolve_command(command)
+    completed = subprocess.run(resolved, check=True, capture_output=True, text=True)
     return completed.stdout
+
+
+def _resolve_command(command: list[str]) -> list[str]:
+    """Resolve the executable (e.g. az.cmd on Windows) so subprocess can find it without a shell."""
+
+    resolved_executable = shutil.which(command[0])
+    if resolved_executable is None:
+        return command
+    return [resolved_executable, *command[1:]]
 
 
 def _classify_raw_resources(

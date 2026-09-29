@@ -289,23 +289,19 @@ def _append_keyvault_resources(
 
         if include_kms:
             kms_type = "AWS::KMS::Key"
-            key_actions: str | list[str]
-            if harden_least_privilege:
-                key_actions = [
-                    "kms:CreateAlias",
-                    "kms:Decrypt",
-                    "kms:DescribeKey",
-                    "kms:EnableKeyRotation",
-                    "kms:Encrypt",
-                    "kms:GenerateDataKey",
-                    "kms:GetKeyPolicy",
-                    "kms:ListAliases",
-                    "kms:PutKeyPolicy",
-                    "kms:ReEncryptFrom",
-                    "kms:ReEncryptTo",
-                ]
-            else:
-                key_actions = "kms:*"
+            key_actions = [
+                "kms:CreateAlias",
+                "kms:Decrypt",
+                "kms:DescribeKey",
+                "kms:EnableKeyRotation",
+                "kms:Encrypt",
+                "kms:GenerateDataKey",
+                "kms:GetKeyPolicy",
+                "kms:ListAliases",
+                "kms:PutKeyPolicy",
+                "kms:ReEncryptFrom",
+                "kms:ReEncryptTo",
+            ]
             resources[kms_logical_id] = {
                 "Type": kms_type,
                 "Properties": {
@@ -323,7 +319,9 @@ def _append_keyvault_resources(
                                     }
                                 },
                                 "Action": key_actions,
-                                "Resource": "*",
+                                "Resource": {
+                                    "Fn::Sub": "arn:${AWS::Partition}:kms:${AWS::Region}:${AWS::AccountId}:key/*"
+                                },
                             }
                         ],
                     },

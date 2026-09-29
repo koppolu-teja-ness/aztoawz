@@ -8,6 +8,7 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import shutil
 import subprocess
 from typing import Any, Callable
 
@@ -220,7 +221,9 @@ def _compile_bicep(*, bicep_path: Path, arm_output_path: Path, runner: CommandRu
 
 
 def _run_command(command: list[str]) -> None:
-    subprocess.run(command, check=True, capture_output=True, text=True)
+    resolved_executable = shutil.which(command[0])
+    resolved = [resolved_executable, *command[1:]] if resolved_executable else command
+    subprocess.run(resolved, check=True, capture_output=True, text=True)
 
 
 def _resolve_parameters(template: dict[str, Any], overrides: dict[str, Any]) -> dict[str, Any]:

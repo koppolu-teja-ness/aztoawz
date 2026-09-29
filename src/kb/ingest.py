@@ -149,9 +149,9 @@ def ingest_rules_to_pgvector(
     embedding_dim = len(chunks[0].embedding)
 
     with psycopg.connect(dsn) as conn:
-        register_vector(conn)
         with conn.cursor() as cur:
             _ensure_pgvector_schema(cur, table_name, embedding_dim)
+            register_vector(conn)
             for chunk in chunks:
                 _upsert_chunk(cur, table_name, chunk)
         conn.commit()
@@ -231,11 +231,15 @@ def _ensure_pgvector_schema(cur: psycopg.Cursor[Any], table_name: str, embedding
         raise RuntimeError(f"Embedding column was not created for table {table_name}")
 
     atttypmod = int(row[0])
-    stored_dim = atttypmod - 4
-    if stored_dim > 0 and stored_dim != embedding_dim:
-        raise ValueError(
-            f"Table {table_name} expects vector({stored_dim}), but embeddings are vector({embedding_dim})"
-        )
+    # Different pgvector/driver combinations can expose either raw dim (e.g. 64)
+    # or varlena typmod encoding (dim + 4). Accept either representation.
+    if atttypmod > 0:
+        valid_dims = {atttypmod, atttypmod - 4}
+        if embedding_dim not in valid_dims:
+            stored_dim = atttypmod - 4 if (atttypmod - 4) > 0 else atttypmod
+            raise ValueError(
+                f"Table {table_name} expects vector({stored_dim}), but embeddings are vector({embedding_dim})"
+            )
 
 
 def _upsert_chunk(cur: psycopg.Cursor[Any], table_name: str, chunk: RuleChunk) -> None:
@@ -254,7 +258,7 @@ def _upsert_chunk(cur: psycopg.Cursor[Any], table_name: str, chunk: RuleChunk) -
                 chunk_text,
                 embedding
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s::vector)
             ON CONFLICT (rule_id, version_id)
             DO UPDATE SET
                 doc_id = EXCLUDED.doc_id,
@@ -277,6 +281,10 @@ def _upsert_chunk(cur: psycopg.Cursor[Any], table_name: str, chunk: RuleChunk) -
             chunk.target_construct,
             chunk.rule_confidence,
             chunk.chunk_text,
-            Vector(chunk.embedding),
+            _to_vector_literal(chunk.embedding),
         ),
     )
+
+
+def _to_vector_literal(values: list[float]) -> str:
+    return "[" + ",".join(f"{value:.12g}" for value in values) + "]"

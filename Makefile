@@ -1,5 +1,8 @@
 .PHONY: install lint format typecheck test validate-cfn validate-kb scan run-graph run-api run-ui
 
+BICEP_PATH ?= tests/fixtures/bicep/functionapp_sample.bicep
+RUN_DIR ?= .migration_runs/manual
+
 install:
 	python -m pip install --upgrade pip
 	python -m pip install -e .[dev]
@@ -29,10 +32,10 @@ scan:
 	$(MAKE) validate-kb
 
 run-graph:
-	@echo "Graph runner scaffold only. Implement orchestration entrypoint under src/graph/."
+	python -m src.graph.cli start --bicep-path "$(BICEP_PATH)" --run-dir "$(RUN_DIR)"
 
 run-api:
-	@echo "API scaffold only. Implement FastAPI app under src/api/."
+	uvicorn src.api:create_app --factory --host 0.0.0.0 --port 8000 --reload
 
 run-ui:
-	@echo "UI scaffold only. Implement UI app under src/ui/."
+	streamlit run src/ui/app.py
