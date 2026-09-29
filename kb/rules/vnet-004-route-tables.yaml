@@ -1,0 +1,21 @@
+rule_id: VNET-004
+source_service: Azure Virtual Network
+source_construct: route tables
+target_service: AWS VPC
+target_construct: AWS::EC2::RouteTable + AWS::EC2::Route
+property_map:
+  routes[*].addressPrefix: DestinationCidrBlock
+  routes[*].nextHopType: TargetType
+  routes[*].nextHopIpAddress: NatOrInstanceTarget
+  disableBgpRoutePropagation: route_propagation_control
+caveats:
+  - Some Azure next hop types require Transit Gateway or NAT design decisions in AWS.
+examples:
+  - source:
+      address_prefix: 0.0.0.0/0
+      next_hop_type: Internet
+    target:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: igw-xxxx
+confidence: 0.91
+last_verified: 2026-09-29

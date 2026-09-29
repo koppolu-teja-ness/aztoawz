@@ -1,0 +1,21 @@
+rule_id: KV-006
+source_service: Azure Key Vault
+source_construct: RBAC role assignments
+target_service: AWS IAM
+target_construct: AWS::IAM::Role + AWS::IAM::ManagedPolicy
+property_map:
+  roleDefinitionId: policy_template
+  principalId: role_trust_principal
+  scope: policy_resource_scope
+  condition: policy_condition
+caveats:
+  - Some Azure built-in roles require decomposition into multiple AWS IAM statements.
+examples:
+  - source:
+      role: Key Vault Secrets User
+      scope: /subscriptions/.../vaults/kv-prod
+    target:
+      managed_policy: kv-secrets-user
+      scoped_resource_arn: arn:aws:secretsmanager:us-east-1:123456789012:secret:kv-prod/*
+confidence: 0.91
+last_verified: 2026-09-29

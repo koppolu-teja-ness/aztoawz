@@ -1,0 +1,21 @@
+rule_id: FN-008
+source_service: Azure Functions
+source_construct: input/output bindings
+target_service: AWS Lambda integrations
+target_construct: event source mapping + SDK call patterns
+property_map:
+  binding.type: integration_kind
+  binding.direction: invocation_or_emit
+  binding.name: handler_parameter
+  binding.connection: environment_reference
+caveats:
+  - Some binding conveniences require explicit client initialization in function code.
+examples:
+  - source:
+      type: queue
+      direction: out
+    target:
+      integration: sqs_send_message
+      parameter: output_message
+confidence: 0.83
+last_verified: 2026-09-29

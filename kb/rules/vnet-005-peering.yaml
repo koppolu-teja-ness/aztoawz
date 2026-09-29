@@ -1,0 +1,21 @@
+rule_id: VNET-005
+source_service: Azure Virtual Network
+source_construct: vnet peering
+target_service: AWS VPC
+target_construct: AWS::EC2::VPCPeeringConnection + route updates
+property_map:
+  remoteVirtualNetwork.id: PeerVpcId
+  allowVirtualNetworkAccess: route_allowance
+  allowForwardedTraffic: transit_policy
+  allowGatewayTransit: gateway_transit_mode
+caveats:
+  - Cross-account and cross-region peering requires additional acceptance and route orchestration.
+examples:
+  - source:
+      remote_vnet: vnet-shared
+      allow_access: true
+    target:
+      PeerVpcId: vpc-remote
+      route_updates_required: true
+confidence: 0.9
+last_verified: 2026-09-29

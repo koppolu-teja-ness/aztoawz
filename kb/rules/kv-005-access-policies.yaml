@@ -1,0 +1,28 @@
+rule_id: KV-005
+source_service: Azure Key Vault
+source_construct: access policies
+target_service: AWS IAM
+target_construct: AWS::IAM::Policy
+property_map:
+  tenantId: account_scope
+  objectId: Principal
+  permissions.secrets: Action
+  permissions.keys: Action
+  permissions.certificates: Action
+  vault_uri: Resource
+caveats:
+  - Wildcard actions and resources are prohibited unless explicitly justified and marked high risk.
+examples:
+  - source:
+      object_id: 1111-2222
+      permissions:
+        secrets:
+          - get
+          - list
+    target:
+      Action:
+        - secretsmanager:GetSecretValue
+        - secretsmanager:DescribeSecret
+      Resource: arn:aws:secretsmanager:us-east-1:123456789012:secret:app/*
+confidence: 0.95
+last_verified: 2026-09-29

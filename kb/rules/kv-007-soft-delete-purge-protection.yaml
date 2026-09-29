@@ -1,0 +1,20 @@
+rule_id: KV-007
+source_service: Azure Key Vault
+source_construct: soft-delete + purge protection
+target_service: AWS Secrets Manager + AWS KMS
+target_construct: RecoveryWindowInDays + key deletion window controls
+property_map:
+  properties.enableSoftDelete: RecoveryWindowInDays
+  properties.enablePurgeProtection: DenyForceDeletePolicy
+  properties.softDeleteRetentionInDays: RecoveryWindowInDays
+caveats:
+  - Purge-protection equivalence requires explicit deny statements on delete schedule APIs.
+examples:
+  - source:
+      enable_soft_delete: true
+      retention_days: 30
+    target:
+      RecoveryWindowInDays: 30
+      deny_force_delete: true
+confidence: 0.94
+last_verified: 2026-09-29

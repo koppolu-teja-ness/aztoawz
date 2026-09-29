@@ -1,0 +1,128 @@
+{
+  "audit_record": {
+    "inputs_hash": "__INPUT_HASH__",
+    "outputs": {
+      "artifact_paths": {
+        "compiled_arm": "__COMPILED_ARM__",
+        "parsed_summary": "__PARSED_SUMMARY__"
+      },
+      "diagnostic_count": 1,
+      "graph_edge_count": 2,
+      "graph_node_count": 3,
+      "parsed_count": 3,
+      "stage": "parser",
+      "unsupported_count": 2
+    },
+    "reviewer": null,
+    "rule_ids_used": [],
+    "timestamp": "__TIMESTAMP__"
+  },
+  "dependency_graph": {
+    "edges": [
+      {
+        "from_resource_id": "Microsoft.Network/virtualNetworks/vnet-demo",
+        "reason": "dependsOn",
+        "to_resource_id": "Microsoft.Network/virtualNetworks/subnets/vnet-demo/subnet-app"
+      },
+      {
+        "from_resource_id": "Microsoft.Network/virtualNetworks/subnets/vnet-demo/subnet-app",
+        "reason": "dependsOn",
+        "to_resource_id": "Microsoft.Resources/deployments/diag-module"
+      }
+    ],
+    "nodes": [
+      {
+        "name": "vnet-demo",
+        "origin_ref": "__ARM_ORIGIN__#/template/resources[0]",
+        "resource_id": "Microsoft.Network/virtualNetworks/vnet-demo",
+        "scope": "resourceGroup",
+        "source_type": "Microsoft.Network/virtualNetworks"
+      },
+      {
+        "name": "vnet-demo/subnet-app",
+        "origin_ref": "__ARM_ORIGIN__#/template/resources[1]",
+        "resource_id": "Microsoft.Network/virtualNetworks/subnets/vnet-demo/subnet-app",
+        "scope": "resourceGroup",
+        "source_type": "Microsoft.Network/virtualNetworks/subnets"
+      },
+      {
+        "name": "diag-module",
+        "origin_ref": "__ARM_ORIGIN__#/template/resources[2]",
+        "resource_id": "Microsoft.Resources/deployments/diag-module",
+        "scope": "resourceGroup",
+        "source_type": "Microsoft.Resources/deployments"
+      }
+    ]
+  },
+  "diagnostics": [
+    {
+      "code": "UNRESOLVED_EXPRESSION",
+      "location": "template.resources[2].properties",
+      "message": "Unresolved expression token 'parameters:missingParam' in template.resources[2].properties",
+      "severity": "WARN"
+    }
+  ],
+  "parsed_resources": [
+    {
+      "dependencies": [],
+      "normalized_type": "microsoft_network_virtualnetworks",
+      "properties": {
+        "origin_ref": "__ARM_ORIGIN__#/template/resources[0]",
+        "resolved_properties": {
+          "addressSpace": {
+            "addressPrefixes": [
+              "10.10.0.0/16"
+            ]
+          }
+        }
+      },
+      "resource_id": "Microsoft.Network/virtualNetworks/vnet-demo",
+      "source_type": "Microsoft.Network/virtualNetworks"
+    },
+    {
+      "dependencies": [
+        "Microsoft.Network/virtualNetworks/vnet-demo"
+      ],
+      "normalized_type": "microsoft_network_virtualnetworks_subnets",
+      "properties": {
+        "origin_ref": "__ARM_ORIGIN__#/template/resources[1]",
+        "resolved_properties": {
+          "addressPrefix": "10.10.1.0/24"
+        }
+      },
+      "resource_id": "Microsoft.Network/virtualNetworks/subnets/vnet-demo/subnet-app",
+      "source_type": "Microsoft.Network/virtualNetworks/subnets"
+    },
+    {
+      "dependencies": [
+        "Microsoft.Network/virtualNetworks/subnets/vnet-demo/subnet-app"
+      ],
+      "normalized_type": "microsoft_resources_deployments",
+      "properties": {
+        "origin_ref": "__ARM_ORIGIN__#/template/resources[2]",
+        "resolved_properties": {
+          "mode": "Incremental",
+          "templateLink": {
+            "uri": "[parameters('missingParam')]"
+          }
+        }
+      },
+      "resource_id": "Microsoft.Resources/deployments/diag-module",
+      "source_type": "Microsoft.Resources/deployments"
+    }
+  ],
+  "unsupported_constructs": [
+    {
+      "impact": "Manual handling required for deterministic expansion",
+      "kind": "copy_loop",
+      "location": "template.resources[2]",
+      "reason": "Resource copy loops are not auto-resolved"
+    },
+    {
+      "impact": "Nested template mapping is out of current automated scope",
+      "kind": "nested_deployment_or_module",
+      "location": "template.resources[2]",
+      "reason": "Compiled module/nested deployment requires manual resolution"
+    }
+  ]
+}

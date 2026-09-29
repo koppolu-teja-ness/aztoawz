@@ -1,0 +1,48 @@
+{
+  "audit_record": {
+    "inputs_hash": "__INPUT_HASH__",
+    "outputs": {
+      "artifact_paths": {
+        "compiled_arm": "__COMPILED_ARM__",
+        "parsed_summary": "__PARSED_SUMMARY__"
+      },
+      "diagnostic_count": 0,
+      "graph_edge_count": 0,
+      "graph_node_count": 1,
+      "parsed_count": 1,
+      "stage": "parser",
+      "unsupported_count": 0
+    },
+    "reviewer": null,
+    "rule_ids_used": [],
+    "timestamp": "__TIMESTAMP__"
+  },
+  "dependency_graph": {
+    "edges": [],
+    "nodes": [
+      {
+        "name": "kv-demo",
+        "origin_ref": "__ARM_ORIGIN__#/template/resources[0]",
+        "resource_id": "Microsoft.KeyVault/vaults/kv-demo",
+        "scope": "resourceGroup",
+        "source_type": "Microsoft.KeyVault/vaults"
+      }
+    ]
+  },
+  "diagnostics": [],
+  "parsed_resources": [
+    {
+      "dependencies": [],
+      "normalized_type": "microsoft_keyvault_vaults",
+      "properties": {
+        "origin_ref": "__ARM_ORIGIN__#/template/resources[0]",
+        "resolved_properties": {
+          "enableRbacAuthorization": true
+        }
+      },
+      "resource_id": "Microsoft.KeyVault/vaults/kv-demo",
+      "source_type": "Microsoft.KeyVault/vaults"
+    }
+  ],
+  "unsupported_constructs": []
+}

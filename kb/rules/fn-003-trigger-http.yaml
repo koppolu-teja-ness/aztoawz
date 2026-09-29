@@ -1,0 +1,22 @@
+rule_id: FN-003
+source_service: Azure Functions
+source_construct: HTTP trigger
+target_service: AWS Lambda + API Gateway
+target_construct: AWS::ApiGatewayV2::Api + Lambda integration
+property_map:
+  authLevel: authorization_mode
+  methods: RouteKey
+  route: RouteKey
+  disabled: route_enabled
+caveats:
+  - Anonymous Azure auth does not imply public access in AWS; explicit resource policy is required.
+examples:
+  - source:
+      methods:
+        - get
+      route: /health
+    target:
+      RouteKey: GET /health
+      AuthorizationType: NONE
+confidence: 0.96
+last_verified: 2026-09-29

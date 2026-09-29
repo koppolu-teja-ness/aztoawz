@@ -1,0 +1,23 @@
+rule_id: KV-004
+source_service: Azure Key Vault
+source_construct: certificates
+target_service: AWS ACM
+target_construct: AWS::CertificateManager::Certificate
+property_map:
+  certificate.subject: DomainName
+  certificate.sans: SubjectAlternativeNames
+  certificate.policy.issuer: ValidationMethod
+  tags: Tags
+caveats:
+  - Private key exportability policies differ between services and may require manual review.
+examples:
+  - source:
+      subject: api.example.com
+      sans:
+        - www.api.example.com
+    target:
+      DomainName: api.example.com
+      SubjectAlternativeNames:
+        - www.api.example.com
+confidence: 0.89
+last_verified: 2026-09-29

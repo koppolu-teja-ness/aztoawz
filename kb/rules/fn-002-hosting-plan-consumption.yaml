@@ -1,0 +1,21 @@
+rule_id: FN-002
+source_service: Azure Functions
+source_construct: hosting plan (consumption)
+target_service: AWS Lambda
+target_construct: memory/timeout/concurrency profile
+property_map:
+  sku.tier: execution_pricing_model
+  maximumElasticWorkerCount: reserved_concurrency
+  functionTimeout: Timeout
+  preWarmedInstanceCount: provisioned_concurrency
+caveats:
+  - Consumption plan autoscale behavior differs; validate concurrency and throttling manually.
+examples:
+  - source:
+      tier: Dynamic
+      timeout: 00:05:00
+    target:
+      Timeout: 300
+      ReservedConcurrentExecutions: 50
+confidence: 0.86
+last_verified: 2026-09-29

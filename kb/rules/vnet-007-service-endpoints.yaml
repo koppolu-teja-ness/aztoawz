@@ -1,0 +1,20 @@
+rule_id: VNET-007
+source_service: Azure Virtual Network
+source_construct: service endpoints
+target_service: AWS VPC
+target_construct: gateway endpoints or interface endpoints
+property_map:
+  serviceEndpoints[*].service: endpoint_service_selector
+  serviceEndpoints[*].locations: region_constraints
+  subnet.id: RouteTableAssociationsOrSubnetIds
+caveats:
+  - Azure service endpoints may require endpoint policies and route table changes in AWS.
+examples:
+  - source:
+      service: Microsoft.Storage
+      subnet: data-subnet
+    target:
+      endpoint_type: Gateway
+      service_name: com.amazonaws.us-east-1.s3
+confidence: 0.87
+last_verified: 2026-09-29

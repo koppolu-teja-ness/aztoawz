@@ -1,0 +1,75 @@
+project:
+  name: azure-to-aws-migration-assistant
+  environment: dev
+
+naming_conventions:
+  prefix: mig
+  workload: platform
+  separator: "-"
+  max_length: 63
+
+tagging_standard:
+  owner: platform-team
+  cost_center: engineering
+  data_classification: internal
+  managed_by: migration-assistant
+  migration_project: azure-to-aws
+
+azure_to_aws_region_map:
+  eastus: us-east-1
+  eastus2: us-east-2
+  westus: us-west-2
+  centralus: us-east-1
+  northeurope: eu-west-1
+  westeurope: eu-west-1
+  southeastasia: ap-southeast-1
+
+risk_thresholds:
+  auto_migratable_max_score: 25
+  requires_review_max_score: 60
+  high_risk_min_score: 61
+
+security:
+  enforce_no_wildcard_iam: true
+  enforce_no_new_public_exposure: true
+  require_kms_encryption_defaults: true
+  require_secret_redaction: true
+
+mapping:
+  min_confidence: 0.55
+  candidates_per_resource: 3
+
+cloudformation:
+  deletion_policy:
+    default: Delete
+    overrides:
+      AWS::SecretsManager::Secret: Retain
+      AWS::KMS::Key: Retain
+      AWS::S3::Bucket: Retain
+      AWS::DynamoDB::Table: Retain
+  update_replace_policy:
+    default: Delete
+    overrides:
+      AWS::SecretsManager::Secret: Retain
+      AWS::KMS::Key: Retain
+      AWS::S3::Bucket: Retain
+      AWS::DynamoDB::Table: Retain
+
+approval_gate:
+  require_signed_approval_artifact: true
+  approval_artifact_ttl_hours: 72
+  allowed_decisions:
+    - APPROVE
+    - REJECT
+    - MODIFY
+
+validation:
+  require_cfn_lint_pass: true
+  require_checkov_pass: true
+  require_post_deploy_equivalence: true
+
+audit:
+  emit_stage_audit_records: true
+  include_input_hash: true
+  include_rule_ids: true
+  include_reviewer_identity: true

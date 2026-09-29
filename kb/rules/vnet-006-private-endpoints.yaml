@@ -1,0 +1,21 @@
+rule_id: VNET-006
+source_service: Azure Virtual Network
+source_construct: private endpoints
+target_service: AWS VPC
+target_construct: AWS::EC2::VPCEndpoint (PrivateLink)
+property_map:
+  privateLinkServiceConnections[*].privateLinkServiceId: ServiceName
+  subnet.id: SubnetIds
+  customDnsConfigs: PrivateDnsEnabled + DNS records
+  groupIds: endpoint_subresource_groups
+caveats:
+  - Service-specific PrivateLink endpoint service names must be resolved per region/account.
+examples:
+  - source:
+      service: storage
+      subnet: app-subnet
+    target:
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: true
+confidence: 0.93
+last_verified: 2026-09-29

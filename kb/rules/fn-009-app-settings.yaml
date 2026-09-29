@@ -1,0 +1,19 @@
+rule_id: FN-009
+source_service: Azure Functions
+source_construct: app settings
+target_service: AWS Lambda
+target_construct: Environment.Variables + parameter/secret references
+property_map:
+  appSettings: Environment.Variables
+  AzureWebJobsStorage: storage_connection_target
+  WEBSITE_RUN_FROM_PACKAGE: deployment_mode
+  FUNCTIONS_WORKER_RUNTIME: Runtime
+caveats:
+  - Secret-valued settings should map to Secrets Manager references, not plaintext environment values.
+examples:
+  - source:
+      FUNCTIONS_WORKER_RUNTIME: python
+    target:
+      Runtime: python3.11
+confidence: 0.94
+last_verified: 2026-09-29

@@ -1,0 +1,25 @@
+rule_id: VNET-003
+source_service: Azure Virtual Network
+source_construct: network security groups (inbound/outbound rules)
+target_service: AWS VPC
+target_construct: AWS::EC2::SecurityGroup + ingress/egress rules
+property_map:
+  securityRules[*].direction: SecurityGroupIngressOrEgress
+  securityRules[*].access: allow_or_deny_strategy
+  securityRules[*].sourceAddressPrefix: CidrIp
+  securityRules[*].destinationPortRange: FromPort/ToPort
+  securityRules[*].protocol: IpProtocol
+caveats:
+  - NSG deny rules have no direct Security Group equivalent; route/NACL controls may be required.
+examples:
+  - source:
+      direction: Inbound
+      access: Allow
+      protocol: Tcp
+      destination_port_range: 443
+    target:
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+confidence: 0.92
+last_verified: 2026-09-29

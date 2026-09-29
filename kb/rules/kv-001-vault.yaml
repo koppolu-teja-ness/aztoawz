@@ -1,0 +1,21 @@
+rule_id: KV-001
+source_service: Azure Key Vault
+source_construct: Microsoft.KeyVault/vaults
+target_service: AWS Secrets Stack
+target_construct: AWS::SecretsManager::Secret + AWS::KMS::Key
+property_map:
+  vaultName: secretNamePrefix
+  location: awsRegion
+  tags: tags
+  sku.name: kmsKeySpec
+caveats:
+  - Vault-level data-plane ACL behavior does not map 1:1 to AWS; pair with IAM policy rules.
+examples:
+  - source:
+      name: kv-prod
+      location: eastus
+    target:
+      secret_prefix: kv-prod/
+      kms_key_alias: alias/kv-prod
+confidence: 0.93
+last_verified: 2026-09-29

@@ -1,0 +1,21 @@
+rule_id: FN-001
+source_service: Azure Functions
+source_construct: Microsoft.Web/sites (kind=functionapp)
+target_service: AWS Lambda
+target_construct: AWS::Lambda::Function
+property_map:
+  name: FunctionName
+  siteConfig.linuxFxVersion: Runtime
+  httpsOnly: invoke_policy_tls
+  tags: Tags
+caveats:
+  - Host-level features (slots, some extensions) can require additional AWS resources.
+examples:
+  - source:
+      name: orders-func
+      runtime: python|3.11
+    target:
+      FunctionName: orders-func
+      Runtime: python3.11
+confidence: 0.93
+last_verified: 2026-09-29

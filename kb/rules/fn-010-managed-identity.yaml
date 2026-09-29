@@ -1,0 +1,20 @@
+rule_id: FN-010
+source_service: Azure Functions
+source_construct: managed identity
+target_service: AWS IAM
+target_construct: AWS::IAM::Role
+property_map:
+  identity.type: role_trust_type
+  identity.principalId: role_name_hint
+  identity.tenantId: account_scope
+  roleAssignments: inline_or_attached_policies
+caveats:
+  - System-assigned identity lifecycle differs from IAM role lifecycle and should be reviewed.
+examples:
+  - source:
+      identity_type: SystemAssigned
+    target:
+      AssumeRolePolicyDocument:
+        Service: lambda.amazonaws.com
+confidence: 0.96
+last_verified: 2026-09-29

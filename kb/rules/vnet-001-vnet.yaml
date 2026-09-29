@@ -1,0 +1,20 @@
+rule_id: VNET-001
+source_service: Azure Virtual Network
+source_construct: virtual network
+target_service: AWS VPC
+target_construct: AWS::EC2::VPC
+property_map:
+  name: Tags.Name
+  addressSpace.addressPrefixes: CidrBlock + secondary_cidrs
+  dhcpOptions: DhcpOptionsId
+  tags: Tags
+caveats:
+  - Azure VNet defaults and AWS VPC defaults differ and must be made explicit.
+examples:
+  - source:
+      cidrs:
+        - 10.10.0.0/16
+    target:
+      CidrBlock: 10.10.0.0/16
+confidence: 0.97
+last_verified: 2026-09-29

@@ -1,0 +1,16 @@
+[
+  {
+    "resource_id": "Microsoft.Network/expressRouteCircuits/er-demo",
+    "source_type": "Microsoft.Network/expressRouteCircuits",
+    "normalized_type": "microsoft_network_expressroutecircuits",
+    "properties": {
+      "resolved_properties": {
+        "allowClassicOperations": false,
+        "serviceProviderProperties": {
+          "serviceProviderName": "ContosoCarrier"
+        }
+      }
+    },
+    "dependencies": []
+  }
+]

@@ -1,0 +1,28 @@
+[
+  {
+    "resource_id": "Microsoft.KeyVault/vaults/kv-demo",
+    "source_type": "Microsoft.KeyVault/vaults",
+    "normalized_type": "microsoft_keyvault_vaults",
+    "properties": {
+      "resolved_properties": {
+        "enableRbacAuthorization": true
+      }
+    },
+    "dependencies": []
+  },
+  {
+    "resource_id": "Microsoft.Network/virtualNetworks/vnet-demo",
+    "source_type": "Microsoft.Network/virtualNetworks",
+    "normalized_type": "microsoft_network_virtualnetworks",
+    "properties": {
+      "resolved_properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.10.0.0/16"
+          ]
+        }
+      }
+    },
+    "dependencies": []
+  }
+]

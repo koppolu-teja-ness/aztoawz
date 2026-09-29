@@ -1,0 +1,22 @@
+rule_id: VNET-002
+source_service: Azure Virtual Network
+source_construct: subnets
+target_service: AWS VPC
+target_construct: AWS::EC2::Subnet
+property_map:
+  subnet.addressPrefix: CidrBlock
+  subnet.name: Tags.Name
+  delegation: manual_dependency_flag
+  privateEndpointNetworkPolicies: private_endpoint_policy_mode
+caveats:
+  - Azure subnet delegation has no universal direct equivalent and may require manual handling.
+examples:
+  - source:
+      name: app-subnet
+      address_prefix: 10.10.1.0/24
+    target:
+      CidrBlock: 10.10.1.0/24
+      Tags:
+        Name: app-subnet
+confidence: 0.94
+last_verified: 2026-09-29

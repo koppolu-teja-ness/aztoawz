@@ -1,0 +1,21 @@
+rule_id: FN-005
+source_service: Azure Functions
+source_construct: Queue trigger
+target_service: AWS Lambda + SQS
+target_construct: EventSourceMapping
+property_map:
+  queueName: EventSourceArn
+  maxDequeueCount: MaximumRetryAttempts
+  batchSize: BatchSize
+  visibilityTimeout: VisibilityTimeout
+caveats:
+  - Dead-letter behavior must be configured explicitly in SQS redrive policy.
+examples:
+  - source:
+      queue_name: work-items
+      batch_size: 16
+    target:
+      QueueName: work-items
+      BatchSize: 16
+confidence: 0.95
+last_verified: 2026-09-29

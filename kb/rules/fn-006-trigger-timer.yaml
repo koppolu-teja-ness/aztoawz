@@ -1,0 +1,18 @@
+rule_id: FN-006
+source_service: Azure Functions
+source_construct: Timer trigger
+target_service: AWS Lambda + EventBridge Scheduler
+target_construct: AWS::Scheduler::Schedule
+property_map:
+  schedule: ScheduleExpression
+  runOnStartup: one_time_bootstrap
+  useMonitor: flexible_time_window
+caveats:
+  - NCRONTAB to cron conversion must preserve timezone and daylight-savings expectations.
+examples:
+  - source:
+      schedule: 0 */5 * * * *
+    target:
+      ScheduleExpression: cron(0/5 * * * ? *)
+confidence: 0.88
+last_verified: 2026-09-29

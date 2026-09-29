@@ -1,0 +1,20 @@
+rule_id: FN-007
+source_service: Azure Functions
+source_construct: EventGrid trigger
+target_service: AWS Lambda + EventBridge
+target_construct: AWS::Events::Rule
+property_map:
+  eventType: detail-type
+  subjectBeginsWith: detail.subject_prefix
+  topicEndpointUri: EventBusName
+  includedEventTypes: EventPattern.detail-type
+caveats:
+  - Event schema fields differ and may require event transformation in transit.
+examples:
+  - source:
+      event_type: Microsoft.Storage.BlobCreated
+    target:
+      detail-type:
+        - Object Created
+confidence: 0.85
+last_verified: 2026-09-29

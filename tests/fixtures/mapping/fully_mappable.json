@@ -1,0 +1,37 @@
+[
+  {
+    "resource_id": "Microsoft.KeyVault/vaults/kv-demo",
+    "source_type": "Microsoft.KeyVault/vaults",
+    "normalized_type": "microsoft_keyvault_vaults",
+    "properties": {
+      "resolved_properties": {
+        "enableRbacAuthorization": true
+      }
+    },
+    "dependencies": []
+  },
+  {
+    "resource_id": "Microsoft.Web/sites/func-demo",
+    "source_type": "Microsoft.Web/sites",
+    "normalized_type": "microsoft_web_sites",
+    "properties": {
+      "resolved_properties": {
+        "httpsOnly": true
+      }
+    },
+    "dependencies": []
+  },
+  {
+    "resource_id": "Microsoft.Network/virtualNetworks/subnets/vnet-demo/subnet-app",
+    "source_type": "Microsoft.Network/virtualNetworks/subnets",
+    "normalized_type": "microsoft_network_virtualnetworks_subnets",
+    "properties": {
+      "resolved_properties": {
+        "addressPrefix": "10.10.1.0/24"
+      }
+    },
+    "dependencies": [
+      "Microsoft.Network/virtualNetworks/vnet-demo"
+    ]
+  }
+]

@@ -1,0 +1,19 @@
+rule_id: FN-004
+source_service: Azure Functions
+source_construct: Blob trigger
+target_service: AWS Lambda + S3
+target_construct: S3 event notification
+property_map:
+  path: bucket_and_prefix
+  connection: event_source_auth
+  blobType: filter_suffix
+caveats:
+  - Large file handling and poison-message behavior may require DLQ patterns.
+examples:
+  - source:
+      path: images/{name}
+    target:
+      Bucket: app-images
+      Prefix: images/
+confidence: 0.9
+last_verified: 2026-09-29
